@@ -42,9 +42,6 @@ Due to GitHub LFS limitations, the dataset is stored on OneDrive.
 
 Download from OneDrive:
 
-👉 OneDrive Data Folder:
-<PLACE_YOUR_ONEDRIVE_LINK_HERE>
-
 After downloading:
 
 Put wpp_2021_2023_final.parquet into the root folder (demo_wpp/)
@@ -82,21 +79,7 @@ Run from inside the app/ folder:
 cd app
 streamlit run dashboard.py
 
-⭐ 7. Project Structure
-demo_wpp/
-│
-├── eda_app.py                       # EDA dashboard
-├── requirements.txt                 # Dependencies
-│
-├── app/
-│   ├── dashboard.py                 # Recommender dashboard
-│   ├── wpp_2020_2024_final.parquet  # Data (downloaded)
-│   ├── *.csv
-│
-└── engine/
-    └── Backend engine modules
-
-⭐ 8. Updating the Project
+⭐ 7. Updating the Project
 
 To pull latest changes:
 
@@ -107,7 +90,7 @@ If new dependencies were added:
 
 pip install -r requirements.txt
 
-⭐ 9. Troubleshooting
+⭐ 8. Troubleshooting
 If Streamlit does not start:
 pip install --upgrade pip
 pip install -r requirements.txt
