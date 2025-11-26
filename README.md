@@ -1,54 +1,51 @@
 WPP Demo Project
-Analytics Dashboard + Recommender System Demo
+Analytics Dashboard and Recommendation System Demo
 
-(Created for internal review)
-
-Welcome to the WPP Demo Project.
-This repository contains two applications:
+This repository contains two small applications created for internal demonstration:
 
 EDA App
-A Streamlit dashboard for exploratory data analysis.
+A Streamlit dashboard for exploratory data analysis of the WPP dataset.
 
 Recommender Dashboard
-An interactive dashboard demonstrating the recommendation engine.
+An interactive dashboard that showcases the behavior and outputs of the recommendation engine.
 
-Both apps are fully self-contained and ready to run.
+Both tools are self-contained and can be run locally with minimal setup.
 
 ⭐ 1. Requirements
 
-Please make sure you have the following installed:
+Please make sure the following are installed:
 
-✔️ Python 3.10 or newer
-
-Check with:
-
+✔ Python 3.10 or newer
 python3 --version
 
-✔️ pip
-
-Check with:
-
+✔ pip
 pip --version
 
-✔️ Git LFS
+✔ Git and Git LFS
 
-This is needed to download large .parquet files.
-
-If you installed Git recently, GitHub handles LFS automatically.
+Large .parquet files are managed using Git LFS.
+Cloning this repository will automatically fetch them.
 
 ⭐ 2. Cloning the Repository
 
-If you have been added as a collaborator, you can clone using either HTTPS (easiest) or SSH (advanced).
-Both methods are explained at the end of this document.
+If you have been added as a collaborator, you can download the project using:
 
-For most users, use HTTPS:
-
+HTTPS (recommended for most users):
 git clone https://github.com/farzadismyid/demo_wpp.git
+
+
+or SSH (optional, for advanced users):
+
+git clone git@github.com:farzadismyid/demo_wpp.git
+
+
+Then move into the folder:
+
 cd demo_wpp
 
-⭐ 3. Create and Activate a Virtual Environment
+⭐ 3. Creating a Virtual Environment
 
-This keeps the project isolated from your system Python.
+Creating a virtual environment ensures that dependencies remain isolated.
 
 Linux / macOS:
 python3 -m venv .venv
@@ -58,176 +55,137 @@ Windows (PowerShell):
 python -m venv .venv
 .venv\Scripts\activate
 
+⭐ 4. Installing Dependencies
 
-When activated, your terminal will show:
-
-(.venv) user@computer:~/demo_wpp$
-
-⭐ 4. Install Dependencies
-
-Run:
+Install all required packages:
 
 pip install -r requirements.txt
 
 
-This installs:
-
-Streamlit
-
-Pandas
-
-DuckDB
-
-Numpy
-
-All internal requirements
-
-And automatically pulls the large .parquet files via Git LFS
+This will install Streamlit, Pandas, DuckDB and other dependencies.
+Git LFS will automatically pull the large data files.
 
 ⭐ 5. Running the Applications
 
-There are two apps. Run them separately.
+There are two independent dashboards.
 
-🔷 A) EDA App (Exploratory Data Analysis)
+🔷 A) EDA App
 
-From the root folder demo_wpp run:
+From the root folder:
 
 streamlit run eda_app.py
 
 
-A browser window will open automatically showing:
+This launches an interactive browser window with:
 
-Usage trends
+Usage and behavioral statistics
 
-Top categories
+Category summaries
 
-Merchant behavior
+Merchant-level insights
 
-Time-based charts
+Time-series trends
 
 Interactive filters
 
 🔷 B) Recommender Dashboard
 
-This dashboard must be started from the app/ folder because its data files are located there.
+This one must be run from inside the app/ directory because data files are located there.
 
-Steps:
 cd app
 streamlit run dashboard.py
 
 
 This dashboard includes:
 
-Global evaluation metrics
+Global recommendation metrics
 
 Precision@K, MAP@K, NDCG@K
 
-Per-user recommendations
+User-level recommendations
 
-Merchant-level details
+Merchant information
 
 Category drill-downs
 
-Session-level analysis
+Session-based analysis
 
-Filtering by merchant, user, or category
+Filtering by merchant, user, category or period
 
 ⭐ 6. Project Structure
 demo_wpp/
 │
-├── eda_app.py                         # EDA dashboard
-├── requirements.txt                   # Dependencies
-├── wpp_2021_2023_final.parquet        # Data (Git LFS)
+├── eda_app.py                       # EDA dashboard
+├── requirements.txt                 # Python dependencies
+├── wpp_2021_2023_final.parquet      # Data (Git LFS)
 │
 ├── app/
-│   ├── dashboard.py                   # Recommendation dashboard
-│   ├── wpp_2020_2024_final.parquet    # Data (Git LFS)
-│   ├── *.csv                          # Extra small data files
+│   ├── dashboard.py                 # Recommender dashboard
+│   ├── wpp_2020_2024_final.parquet  # Data (Git LFS)
+│   ├── *.csv                        # Additional data files
 │   └── ...
 │
 └── engine/
-    └── Backend engine code
+    └── Backend engine modules
 
 ⭐ 7. Updating the Project
 
-To get the latest version:
+To pull new updates:
 
 git pull
 
 
-If new packages are added:
+If new packages were added:
 
 pip install -r requirements.txt
 
 ⭐ 8. Troubleshooting
-If Streamlit does not launch:
-
-Try:
-
+If Streamlit doesn’t open
 pip install --upgrade pip
 pip install -r requirements.txt
 
-If virtual environment is broken:
-
-Delete the .venv folder and recreate it:
-
+If the virtual environment breaks
 rm -rf .venv
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-⭐ 9. Optional: How to Clone Using HTTPS or SSH
-
-Both methods work.
-
-Method 1: HTTPS (Recommended for most users)
-
-Simple and requires no setup.
-
+⭐ 9. Optional: Cloning Using HTTPS or SSH
+Method 1: HTTPS (easiest)
 git clone https://github.com/farzadismyid/demo_wpp.git
 
 
-GitHub may ask for:
+GitHub may ask for your username and a Personal Access Token (PAT).
 
-Your GitHub username
+Method 2: SSH (optional)
 
-A one-time Personal Access Token (instead of a password)
+Generate a key:
 
-Method 2: SSH (For advanced users)
-
-If you prefer passwordless Git operations.
-
-Step 1: Generate your SSH key:
 ssh-keygen -t ed25519 -C "your_email@example.com"
 
 
-Press Enter for all prompts.
-
-Step 2: Add public key to GitHub:
-
-Copy your key:
+Copy your public key:
 
 cat ~/.ssh/id_ed25519.pub
 
 
-Add it at:
-
+Add it to GitHub under:
 https://github.com/settings/keys
 
-Step 3: Clone using SSH:
+Clone using SSH:
+
 git clone git@github.com:farzadismyid/demo_wpp.git
 
-🎉 Everything Is Ready
+🎉 Everything is ready
 
 You can now explore:
 
-✔️ EDA Dashboard
-
+EDA Dashboard
 streamlit run eda_app.py
 
-✔️ Recommender Dashboard
-
+Recommender Dashboard
 cd app
 streamlit run dashboard.py
 
-If you need help, contact Ali.
+
+If anything is unclear or you want additional features, feel free to ask.
