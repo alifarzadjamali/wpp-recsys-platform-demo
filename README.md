@@ -1,191 +1,131 @@
 WPP Demo Project
-Analytics Dashboard and Recommendation System Demo
+Analytics Dashboard and Recommendation Engine Demo
 
-This repository contains two small applications created for internal demonstration:
+This repository contains two applications created for internal demonstration:
 
 EDA App
-A Streamlit dashboard for exploratory data analysis of the WPP dataset.
+A Streamlit dashboard showing exploratory data analysis of the WPP dataset.
 
 Recommender Dashboard
-An interactive dashboard that showcases the behavior and outputs of the recommendation engine.
+An interactive dashboard that displays recommendation outputs, metrics, and drill-downs.
 
-Both tools are self-contained and can be run locally with minimal setup.
+Both tools run locally and require minimal setup.
 
 ⭐ 1. Requirements
 
 Please make sure the following are installed:
 
-✔ Python 3.10 or newer
-python3 --version
+Python 3.10 or newer
 
-✔ pip
-pip --version
+pip
 
-✔ Git and Git LFS
+Git
 
-Large .parquet files are managed using Git LFS.
-Cloning this repository will automatically fetch them.
+Large data files are stored externally on OneDrive.
 
 ⭐ 2. Cloning the Repository
 
-If you have been added as a collaborator, you can download the project using:
+You must be added as a collaborator to access this private repo.
 
-HTTPS (recommended for most users):
+Clone using HTTPS (recommended):
 git clone https://github.com/farzadismyid/demo_wpp.git
+cd demo_wpp
 
 
-or SSH (optional, for advanced users):
+SSH is also supported if you prefer it:
 
 git clone git@github.com:farzadismyid/demo_wpp.git
 
+⭐ 3. Download Required Data Files
 
-Then move into the folder:
+Due to GitHub LFS limitations, the dataset is stored on OneDrive.
 
-cd demo_wpp
+Download from OneDrive:
 
-⭐ 3. Creating a Virtual Environment
+👉 OneDrive Data Folder:
+<PLACE_YOUR_ONEDRIVE_LINK_HERE>
 
-Creating a virtual environment ensures that dependencies remain isolated.
+After downloading:
 
+Put wpp_2021_2023_final.parquet into the root folder (demo_wpp/)
+
+Put wpp_2020_2024_final.parquet into the app/ folder
+
+The dashboards will automatically detect these files.
+
+⭐ 4. Create a Virtual Environment
 Linux / macOS:
 python3 -m venv .venv
 source .venv/bin/activate
 
-Windows (PowerShell):
+Windows:
 python -m venv .venv
 .venv\Scripts\activate
 
-⭐ 4. Installing Dependencies
-
-Install all required packages:
-
+⭐ 5. Install Dependencies
 pip install -r requirements.txt
 
 
-This will install Streamlit, Pandas, DuckDB and other dependencies.
-Git LFS will automatically pull the large data files.
+This installs Streamlit, Pandas, DuckDB, and other required packages.
 
-⭐ 5. Running the Applications
-
-There are two independent dashboards.
-
+⭐ 6. Running the Applications
 🔷 A) EDA App
 
-From the root folder:
+Run from the root folder:
 
 streamlit run eda_app.py
 
-
-This launches an interactive browser window with:
-
-Usage and behavioral statistics
-
-Category summaries
-
-Merchant-level insights
-
-Time-series trends
-
-Interactive filters
-
 🔷 B) Recommender Dashboard
 
-This one must be run from inside the app/ directory because data files are located there.
+Run from inside the app/ folder:
 
 cd app
 streamlit run dashboard.py
 
-
-This dashboard includes:
-
-Global recommendation metrics
-
-Precision@K, MAP@K, NDCG@K
-
-User-level recommendations
-
-Merchant information
-
-Category drill-downs
-
-Session-based analysis
-
-Filtering by merchant, user, category or period
-
-⭐ 6. Project Structure
+⭐ 7. Project Structure
 demo_wpp/
 │
 ├── eda_app.py                       # EDA dashboard
-├── requirements.txt                 # Python dependencies
-├── wpp_2021_2023_final.parquet      # Data (Git LFS)
+├── requirements.txt                 # Dependencies
 │
 ├── app/
 │   ├── dashboard.py                 # Recommender dashboard
-│   ├── wpp_2020_2024_final.parquet  # Data (Git LFS)
-│   ├── *.csv                        # Additional data files
-│   └── ...
+│   ├── wpp_2020_2024_final.parquet  # Data (downloaded)
+│   ├── *.csv
 │
 └── engine/
     └── Backend engine modules
 
-⭐ 7. Updating the Project
+⭐ 8. Updating the Project
 
-To pull new updates:
+To pull latest changes:
 
 git pull
 
 
-If new packages were added:
+If new dependencies were added:
 
 pip install -r requirements.txt
 
-⭐ 8. Troubleshooting
-If Streamlit doesn’t open
+⭐ 9. Troubleshooting
+If Streamlit does not start:
 pip install --upgrade pip
 pip install -r requirements.txt
 
-If the virtual environment breaks
+If your virtual environment breaks:
 rm -rf .venv
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
-⭐ 9. Optional: Cloning Using HTTPS or SSH
-Method 1: HTTPS (easiest)
-git clone https://github.com/farzadismyid/demo_wpp.git
-
-
-GitHub may ask for your username and a Personal Access Token (PAT).
-
-Method 2: SSH (optional)
-
-Generate a key:
-
-ssh-keygen -t ed25519 -C "your_email@example.com"
-
-
-Copy your public key:
-
-cat ~/.ssh/id_ed25519.pub
-
-
-Add it to GitHub under:
-https://github.com/settings/keys
-
-Clone using SSH:
-
-git clone git@github.com:farzadismyid/demo_wpp.git
 
 🎉 Everything is ready
 
 You can now explore:
 
 EDA Dashboard
-streamlit run eda_app.py
 
 Recommender Dashboard
-cd app
-streamlit run dashboard.py
 
+Data insights and engine outputs
 
-If anything is unclear or you want additional features, feel free to ask.
+If anything is unclear, let me know.
