@@ -1,0 +1,30 @@
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Old Files
+dataunderstanding/
+dpp/
+old/
+recsysexperiment/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.ipynb
+.ipynb_checkpoints/
+eda_outputs/
+
+# Data files (ALLOWING parquet for now)
+# If you want to push real parquet, comment these lines out
+# *.parquet
+# *.csv
+
+# OS
+.DS_Store
+
+# VSCode
+.vscode/
+
