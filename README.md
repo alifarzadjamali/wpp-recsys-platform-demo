@@ -11,7 +11,7 @@ An interactive dashboard that displays recommendation results, metrics, and dril
 
 Both tools run locally and require minimal setup.
 
-## ⭐ 1. Requirements
+# ⭐ 1. Requirements
 
 Make sure the following are installed:
 
@@ -69,13 +69,13 @@ pip install -r requirements.txt
 This installs Streamlit, Pandas, DuckDB, and other required packages.
 
 # ⭐ 6. Running the Applications
-## 🔷 A) EDA App
+# 🔷 A) EDA App
 
 Run from the root folder:
 
 streamlit run eda_app.py
 
-## 🔷 B) Recommender Dashboard
+# 🔷 B) Recommender Dashboard
 
 Run from inside the app/ folder:
 
@@ -83,7 +83,7 @@ cd app
 streamlit run dashboard.py
 
 
-## 🔷 C) Jupyter Notebook (Alternative to Recommendation Dashboard)
+# 🔷 C) Jupyter Notebook (Alternative to Recommendation Dashboard)
 
 If Streamlit is slow or the dashboard freezes, you can use the Jupyter notebook version of the recommendation engine.
 
