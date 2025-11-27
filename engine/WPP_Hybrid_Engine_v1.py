@@ -40,19 +40,19 @@ TOP_K_RECS = 10
 TEMPORAL_SPLIT_RATIO = 0.75
 
 # ===== Hybrid Weights =====
-WEIGHT_ALS = 0.50       # MF latent factors
-WEIGHT_IBCF = 0.30      # item similarity
-WEIGHT_CAT = 0.10       # category embeddings
-WEIGHT_RECENCY = 0.05   # recent merchants
-WEIGHT_POP = 0.05       # popularity boost
+# WEIGHT_ALS = 0.50       # MF latent factors
+# WEIGHT_IBCF = 0.30      # item similarity
+# WEIGHT_CAT = 0.10       # category embeddings
+# WEIGHT_RECENCY = 0.05   # recent merchants
+# WEIGHT_POP = 0.05       # popularity boost
 
 # ===== Filtering =====
 MIN_INTERACTIONS = 8
 MAX_INTERACTIONS = None    # None = disabled
 
 # ===== Diversification =====
-ENABLE_DIVERSITY = True
-DIVERSITY_RULE = "CAP_PER_CATEGORY"   # CAP_PER_CATEGORY or RATIO_PERSONAL_EXPLORE
+# ENABLE_DIVERSITY = True
+# DIVERSITY_RULE = "CAP_PER_CATEGORY"   # CAP_PER_CATEGORY or RATIO_PERSONAL_EXPLORE
 
 CATEGORY_CAP = 2                      # max items per category
 EXPLORE_RATIO = 0.3                   # 30 percent exploration
@@ -346,7 +346,7 @@ ENABLE_EXPOSURE_PENALTY = False     # optional, default OFF
 # weights (all configurable)
 W_ALS = 0.50
 W_IBCF = 0.20
-W_SESS = 0.10         
+W_SESS = 0.10
 W_CAT = 0.10
 W_POP = 0.15
 W_REC = 0.05
@@ -466,13 +466,17 @@ def hybrid_score(u_idx):
 
 
 # ------------------------------------------------------
-# 4. DIVERSITY ENFORCER 
+# 4. DIVERSITY ENFORCER  (LIVE PARAM VERSION)
 # ------------------------------------------------------
 def apply_diversity(ranked_items):
-    """Apply merchant and category caps."""
+    """Apply merchant/category caps using LIVE values."""
 
     if not ENABLE_DIVERSITY:
         return list(ranked_items[:TOP_K_RECS])
+
+    # read updated caps from globals
+    MAX_SAME_live = globals()["MAX_SAME_MERCHANT"]
+    MAX_CAT_live = globals()["MAX_PER_CATEGORY"]
 
     final = []
     merchant_count = Counter()
@@ -486,15 +490,15 @@ def apply_diversity(ranked_items):
         mid = idx_to_item[iid]
         cats = get_item_cats(iid)
 
-        # rule 1: merchant cap
-        if merchant_count[mid] >= MAX_SAME_MERCHANT:
+        # rule 1 merchant
+        if merchant_count[mid] >= MAX_SAME_live:
             continue
 
-        # rule 2: category cap
-        if any(category_count[c] >= MAX_PER_CATEGORY for c in cats):
+        # rule 2 categories
+        if any(category_count[c] >= MAX_CAT_live for c in cats):
             continue
 
-        # accept item
+        # accept
         final.append(iid)
         merchant_count[mid] += 1
         for c in cats:
@@ -503,14 +507,13 @@ def apply_diversity(ranked_items):
         if len(final) >= TOP_K_RECS:
             break
 
-    # fill missing with remaining
+    # incomplete? fill with remaining
     if len(final) < TOP_K_RECS:
         need = TOP_K_RECS - len(final)
         filler = [x for x in ranked_items if x not in final][:need]
         final.extend(filler)
 
     return final
-
 
 # ------------------------------------------------------
 # 5. FINAL RECOMMENDER FUNCTION
@@ -836,42 +839,42 @@ print("    pick_demo_users()")
 # ======================================================
 
 # basic global variables
-num_users = num_users
-num_items = num_items
-df_train = df_train
-df_test = df_test
+# num_users = num_users
+# num_items = num_items
+# df_train = df_train
+# df_test = df_test
 
-# popularity and recency
-recency_scores = recency_scores
-item_pop_norm = item_pop_norm
+# # popularity and recency
+# recency_scores = recency_scores
+# item_pop_norm = item_pop_norm
 
-# category mappings
-merchant_categories = merchant_categories
-category_id_to_name = category_id_to_name
-cat_matrix = cat_matrix
+# # category mappings
+# merchant_categories = merchant_categories
+# category_id_to_name = category_id_to_name
+# cat_matrix = cat_matrix
 
-# ALS embeddings
-MF_USERS = MF_USERS
-MF_ITEMS = MF_ITEMS
+# # ALS embeddings
+# MF_USERS = MF_USERS
+# MF_ITEMS = MF_ITEMS
 
-# similarity matrices
-item_sim_sparse = item_sim_sparse
-CAT_SIM = CAT_SIM
+# # similarity matrices
+# item_sim_sparse = item_sim_sparse
+# CAT_SIM = CAT_SIM
 
-# user and item maps
-user_to_idx = user_to_idx
-idx_to_user = idx_to_user
-item_to_idx = item_to_idx
-idx_to_item = idx_to_item
+# # user and item maps
+# user_to_idx = user_to_idx
+# idx_to_user = idx_to_user
+# item_to_idx = item_to_idx
+# idx_to_item = idx_to_item
 
-# training and test CSR matrices
-train_ui = train_ui
-test_ui = test_ui
+# # training and test CSR matrices
+# train_ui = train_ui
+# test_ui = test_ui
 
-# cluster labels (optional)
-if 'cluster_labels' in globals():
-    cluster_labels = cluster_labels
+# # cluster labels (optional)
+# if 'cluster_labels' in globals():
+#     cluster_labels = cluster_labels
 
-# global evaluation (optional)
-if 'global_metrics' in globals():
-    global_metrics = global_metrics
+# # global evaluation (optional)
+# if 'global_metrics' in globals():
+#     global_metrics = global_metrics

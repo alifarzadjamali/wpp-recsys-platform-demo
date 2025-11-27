@@ -8,19 +8,17 @@ dataunderstanding/
 dpp/
 old/
 recsysexperiment/
+eda_outputs/
 
 # Python cache
 __pycache__/
 *.pyc
 *.pyo
-*.ipynb
+# *.ipynb
 .ipynb_checkpoints/
-eda_outputs/
 
-# Data files (ALLOWING parquet for now)
-# If you want to push real parquet, comment these lines out
-# *.parquet
-# *.csv
+*.parquet
+*.csv
 
 # OS
 .DS_Store
