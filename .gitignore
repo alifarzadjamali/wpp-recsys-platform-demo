@@ -18,7 +18,7 @@ __pycache__/
 .ipynb_checkpoints/
 
 *.parquet
-*.csv
+#*.csv
 
 # OS
 .DS_Store
