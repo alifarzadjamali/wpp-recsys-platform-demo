@@ -1,6 +1,8 @@
 # **WPP Demo Project**
 Analytics Dashboard and Recommendation Engine Demo
 
+The original demo code is available under the [MIT License](LICENSE). The WPP datasets are not included in that licence or in the current repository. The two `catmap.csv` files contain category labels and IDs used by the demo; check that you have permission to use them in your setting. Notebook outputs have been cleared from the current version because they previously contained examples derived from the source data. Earlier Git commits still retain old files and outputs.
+
 This repository contains two applications created for internal demonstration:
 
 EDA App
