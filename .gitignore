@@ -18,6 +18,10 @@ __pycache__/
 .ipynb_checkpoints/
 
 *.parquet
+artifacts/
+data/retailrocket/
+data/*.csv
+data/*.parquet
 #*.csv
 
 # OS
