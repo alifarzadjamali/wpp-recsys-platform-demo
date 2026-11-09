@@ -38,7 +38,7 @@ The comparison lands in `artifacts/comparison.csv`. The demo data is invented, s
 python run.py --source retailrocket --path data/retailrocket --max-events 100000 --epochs 3
 ```
 
-Remove `--max-events` for the full event log. A small head sample is useful for checking the pipeline, but it is not a benchmark. Retailrocket is published under [CC BY-NC-SA 4.0](https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset); check the license before commercial use. We do not ship a copy of it.
+Remove `--max-events` for the full event log if your machine has enough memory and time. The evaluator scores the full catalog for each sampled user, so the full data can be slow. A small head sample is useful for checking the pipeline, but it is not a benchmark. Retailrocket is published under [CC BY-NC-SA 4.0](https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset); check the license before commercial use. We do not ship a copy of it.
 
 The WPP reader still works with a local parquet file:
 

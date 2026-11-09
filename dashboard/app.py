@@ -1,6 +1,7 @@
 """Local dashboard for data checks and saved model comparisons."""
 
 import json
+from copy import copy
 from pathlib import Path
 import sys
 import pandas as pd
@@ -38,17 +39,18 @@ source = st.sidebar.selectbox("Data source", ["Demo", "Retailrocket", "WPP"])
 path = st.sidebar.text_input("Dataset path", "data/retailrocket" if source == "Retailrocket" else "data/wpp.parquet")
 max_events = st.sidebar.number_input("Event limit (0 means all)", min_value=0, value=100000, step=10000)
 limit = max_events or None
+selection = (source, path, limit)
 tab_data, tab_compare, tab_explore, tab_tune = st.tabs(["Data and EDA", "Model comparison", "Explore", "Tune baseline"])
 
 with tab_data:
     if st.button("Load data"):
         try:
             events, catalog = read_data(source, path, limit)
-            st.session_state["dataset"] = (events, catalog)
+            st.session_state["dataset"] = (selection, events, catalog)
         except (OSError, ValueError) as error:
             st.error(str(error))
-    if "dataset" in st.session_state:
-        events, catalog = st.session_state["dataset"]
+    if "dataset" in st.session_state and st.session_state["dataset"][0] == selection:
+        _, events, catalog = st.session_state["dataset"]
         st.json(summary(events, catalog))
         st.line_chart(daily(events).set_index("day"))
         st.subheader("Most viewed items")
@@ -70,25 +72,25 @@ with tab_compare:
 with tab_explore:
     if st.button("Train baseline for browsing"):
         try:
-            st.session_state["baseline"] = baseline(source, path, limit)
+            st.session_state["baseline"] = (selection, *baseline(source, path, limit))
         except (OSError, ValueError) as error:
             st.error(str(error))
-    if "baseline" in st.session_state:
-        model, data, _ = st.session_state["baseline"]
+    if "baseline" in st.session_state and st.session_state["baseline"][0] == selection:
+        _, model, data, _ = st.session_state["baseline"]
         user = st.selectbox("User", data.users[:1000])
         recs = rank(model.score(user), data.seen.get(user, set()), 10)
         st.dataframe(data.catalog.iloc[recs][["item_id", "name", "category"]], hide_index=True)
 
 with tab_tune:
-    if "baseline" not in st.session_state:
+    if "baseline" not in st.session_state or st.session_state["baseline"][0] != selection:
         st.info("Train the baseline in Explore first.")
     else:
-        original, data, valid = st.session_state["baseline"]
+        _, original, data, valid = st.session_state["baseline"]
         st.caption("Weights here only affect this evaluation. The saved comparison stays fixed.")
         weights = {key: st.slider(key.replace("_", " ").title(), 0.0, 1.0, float(value), 0.05)
                    for key, value in original.weights.items()}
         if st.button("Evaluate these weights on validation"):
-            tuned = Baseline(weights=weights)
-            tuned.__dict__.update({key: value for key, value in original.__dict__.items() if key != "weights"})
+            tuned = copy(original)
+            tuned.weights = weights
             result = evaluate(tuned, data, valid, max_users=500)
             st.dataframe(result, hide_index=True)

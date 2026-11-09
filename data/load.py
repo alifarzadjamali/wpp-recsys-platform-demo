@@ -55,6 +55,8 @@ def load_retailrocket(directory: str | Path, max_events: int | None = None):
     directory = Path(directory)
     events = pd.read_csv(directory / "events.csv", usecols=["timestamp", "visitorid", "event", "itemid"], nrows=max_events)
     events = events.loc[events["event"].isin(["view", "addtocart", "transaction"])]
+    if events.empty:
+        raise ValueError("No supported Retailrocket events found")
     events = events.rename(columns={"visitorid": "user_id", "itemid": "item_id"})
     events["timestamp"] = pd.to_datetime(events["timestamp"], unit="ms", utc=True)
     events = events[["user_id", "item_id", "timestamp", "event"]]
