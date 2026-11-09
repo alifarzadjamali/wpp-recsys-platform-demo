@@ -67,11 +67,18 @@ def load_retailrocket(directory: str | Path, max_events: int | None = None):
     available = [p for p in parts if p.exists()]
     if not available:
         raise FileNotFoundError("Retailrocket needs item_properties_part1.csv or item_properties_part2.csv")
-    properties = pd.concat([pd.read_csv(p, usecols=["timestamp", "itemid", "property", "value"]) for p in available], ignore_index=True)
+    cutoff = events["timestamp"].sort_values().iloc[int(len(events) * 0.7) - 1]
+    cutoff_ms = cutoff.value // 1_000_000
+    category_parts = []
+    for path in available:
+        for chunk in pd.read_csv(path, usecols=["timestamp", "itemid", "property", "value"], chunksize=250_000):
+            found = chunk.loc[(chunk["property"] == "categoryid") & (chunk["timestamp"] <= cutoff_ms)]
+            if not found.empty:
+                category_parts.append(found)
+    properties = pd.concat(category_parts, ignore_index=True) if category_parts else pd.DataFrame(columns=["timestamp", "itemid", "property", "value"])
     category = properties.loc[properties["property"] == "categoryid"].copy()
     category["timestamp"] = pd.to_datetime(category["timestamp"], unit="ms", utc=True)
     # Catalog metadata is available only if published before the evaluation boundary.
-    cutoff = events["timestamp"].sort_values().iloc[int(len(events) * 0.7) - 1]
     category = category.loc[category["timestamp"] <= cutoff].sort_values("timestamp").drop_duplicates("itemid", keep="last")
     catalog = category.rename(columns={"itemid": "item_id", "value": "category"})[["item_id", "category"]]
     catalog["name"] = "Item " + catalog["item_id"].astype(str)
