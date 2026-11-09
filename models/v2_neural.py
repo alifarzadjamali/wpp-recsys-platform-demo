@@ -28,44 +28,53 @@ class TwoTowerNet(nn.Module):
 class NeuralTwoTower:
     name = "v2_neural"
 
-    def __init__(self, dim=32, epochs=3, max_history=20, seed=42):
-        self.dim, self.epochs, self.max_history, self.seed = dim, epochs, max_history, seed
+    def __init__(self, dim=32, epochs=3, max_history=20, seed=42, max_pairs=300000):
+        self.dim, self.epochs, self.max_history, self.seed, self.max_pairs = dim, epochs, max_history, seed, max_pairs
 
     def fit(self, data: ModelData):
         torch.manual_seed(self.seed)
         rng = np.random.default_rng(self.seed)
         self.data = data
-        self.net = TwoTowerNet(len(data.items), len(data.category_names), self.dim)
-        self.categories = torch.tensor(data.item_categories, dtype=torch.long)
-        self.known = torch.tensor((data.popularity > 0).astype(float), dtype=torch.float32)
+        self.device = torch.device("cuda" if torch.cuda.is_available() and len(data.items) > 1000 else "cpu")
+        self.net = TwoTowerNet(len(data.items), len(data.category_names), self.dim).to(self.device)
+        self.categories = torch.tensor(data.item_categories, dtype=torch.long, device=self.device)
+        self.known = torch.tensor((data.popularity > 0).astype(float), dtype=torch.float32, device=self.device)
         examples = []
         for history in data.histories.values():
             for pos in range(1, len(history)):
                 examples.append((history[max(0, pos - self.max_history):pos], history[pos]))
+        if len(examples) > self.max_pairs:
+            examples = [examples[i] for i in sorted(rng.choice(len(examples), self.max_pairs, replace=False))]
         if not examples:
+            self.net.eval()
+            with torch.no_grad():
+                self.candidates = self.net.item_vectors(torch.arange(len(data.items), device=self.device), self.categories, self.known)
             return self
         optimizer = torch.optim.Adam(self.net.parameters(), lr=0.003)
         for _ in range(self.epochs):
             for batch_ids in np.array_split(rng.permutation(len(examples)), max(1, int(np.ceil(len(examples) / 256)))):
                 batch = [examples[i] for i in batch_ids]
                 length = max(len(h) for h, _ in batch)
-                histories = torch.zeros((len(batch) * 2, length), dtype=torch.long)
+                histories = torch.zeros((len(batch) * 2, length), dtype=torch.long, device=self.device)
                 mask = torch.zeros_like(histories, dtype=torch.float32)
                 targets = []
                 for j, (history, target) in enumerate(batch):
                     for row in (j, j + len(batch)):
-                        histories[row, -len(history):] = torch.tensor(history)
+                        histories[row, -len(history):] = torch.tensor(history, device=self.device)
                         mask[row, -len(history):] = 1
                     targets.append(target)
                 negatives = rng.integers(0, len(data.items), len(batch))
-                targets = torch.tensor(targets + negatives.tolist())
-                labels = torch.cat([torch.ones(len(batch)), torch.zeros(len(batch))])
+                targets = torch.tensor(targets + negatives.tolist(), device=self.device)
+                labels = torch.cat([torch.ones(len(batch)), torch.zeros(len(batch))]).to(self.device)
                 logits = self.net(histories, mask, targets, self.categories, self.known)
                 loss = nn.functional.binary_cross_entropy_with_logits(logits, labels)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
         self.net.eval()
+        with torch.no_grad():
+            self.candidates = torch.cat([self.net.item_vectors(ids, self.categories[ids], self.known[ids])
+                for ids in torch.arange(len(data.items), device=self.device).split(8192)])
         return self
 
     def score(self, user: str):
@@ -74,11 +83,9 @@ class NeuralTwoTower:
         if not history:
             return data.popularity.copy()
         with torch.no_grad():
-            seq = torch.tensor([history], dtype=torch.long)
+            seq = torch.tensor([history], dtype=torch.long, device=self.device)
             mask = torch.ones_like(seq, dtype=torch.float32)
             context = self.net.item_vectors(seq, self.categories[seq], self.known[seq]).mean(1)
             users = self.net.user_tower(context)[0]
-            ids = torch.arange(len(data.items))
-            vectors = self.net.item_vectors(ids, self.categories, self.known)
-            scores = (vectors @ users).numpy() / self.dim ** 0.5
+            scores = (self.candidates @ users).cpu().numpy() / self.dim ** 0.5
         return scores + 0.05 * data.popularity

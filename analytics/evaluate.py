@@ -18,9 +18,19 @@ def evaluate(model, data: ModelData, events: pd.DataFrame, k=10, max_users=1000,
         else:
             truth[str(row.user_id)].add(item)
             ordered[str(row.user_id)].append(item)
-    users = sorted(truth)
-    if len(users) > max_users:
-        users = sorted(np.random.default_rng(seed).choice(users, max_users, replace=False))
+    rng = np.random.default_rng(seed)
+    all_users = sorted(truth)
+    def sample(candidates):
+        return set(rng.choice(candidates, min(len(candidates), max_users), replace=False)) if candidates else set()
+    cohorts = {
+        "overall": sample(all_users),
+        "new_user": sample([u for u in all_users if u not in data.user_index]),
+        "short_history": sample([u for u in all_users if u in data.user_index and len(data.histories[u]) <= 3]),
+        "warm_user": sample([u for u in all_users if u in data.user_index and len(data.histories[u]) > 3]),
+        "cold_item": sample([u for u in all_users if any(data.popularity[i] == 0 for i in truth[u])]),
+        "new_user_after_one": sample([u for u in all_users if u not in data.user_index and len(ordered[u]) >= 2]),
+    }
+    users = sorted(set().union(*cohorts.values()))
     groups = defaultdict(list)
     recommended = defaultdict(set)
     cold_items = set(np.flatnonzero(data.popularity == 0))
@@ -49,6 +59,8 @@ def evaluate(model, data: ModelData, events: pd.DataFrame, k=10, max_users=1000,
             del data.histories[user]
         for label in labels:
             group, group_truth = label[:2]
+            if user not in cohorts[group]:
+                continue
             group_pred = label[2] if len(label) == 3 else pred
             hits = [int(item in group_truth) for item in group_pred]
             precision = sum(hits) / k

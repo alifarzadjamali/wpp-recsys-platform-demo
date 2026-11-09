@@ -9,7 +9,7 @@ A small place to explore event data and compare three recommenders. The WPP file
 | `data/` | Readers, schema checks, time split, and a tiny demo dataset |
 | `analytics/` | EDA tables and ranking metrics |
 | `dashboard/` | Streamlit app |
-| `models/` | V1 hybrid baseline, V2 neural two-tower, V3 sequence attention |
+| `models/` | V1 hybrid baseline, V2 neural two-tower, V3 HSTU-style sequence model |
 | `tests/` | Small tests for splits, tuning, ranking, and model output |
 
 The models all score the same catalog at the same cutoff. The dashboard reads saved comparison results, so opening a page does not train three models.
@@ -29,6 +29,10 @@ streamlit run dashboard/app.py
 ```
 
 The comparison lands in `artifacts/comparison.csv`. The demo data is invented, so its scores say nothing about real users.
+
+We also ran the full Retailrocket event log locally. The [results and limits](docs/retailrocket-results.md) explain what won under that run's training budget.
+
+On larger data, the neural models use a fixed random sample of up to 300,000 training pairs by default. The evaluator samples up to 300 users **per cohort** so warm users and cold items remain visible even when most visitors have no history. These limits and the training device are recorded in `artifacts/run.json`. Change them with `--max-train-pairs` and `--max-users` if you have more time and memory.
 
 ## Use public data
 
@@ -50,7 +54,7 @@ WPP needs `member_id_str`, `merchant`, and `createdAt`. Its optional `name`, `ca
 
 ## What the three versions do
 
-V1 is the baseline hybrid: latent factors from a sparse user-item matrix, co-visits, optional sessions, categories, popularity, and recency. V2 learns user and item towers from interaction histories and category features. V3 is a compact causal attention sequence model inspired by Meta's [HSTU research](https://arxiv.org/abs/2402.17152). It is a local comparison model, not Meta's production HSTU implementation. [Meta's code](https://github.com/meta-recsys/generative-recommenders) has a much larger training and serving stack.
+V1 is the baseline hybrid: latent factors from a sparse user-item matrix, co-visits, optional sessions, categories, popularity, and recency. V2 learns user and item towers from interaction histories and category features. V3 uses pointwise causal attention, relative position bias, and gated pooling from Meta's [HSTU research](https://arxiv.org/abs/2402.17152). It is a small HSTU-style model, not Meta's production implementation. It omits temporal bias, fused GPU kernels, and their large-scale training setup; see [Meta's code](https://github.com/meta-recsys/generative-recommenders) for those pieces. Its performance here has to be measured, not assumed from the paper.
 
 The report includes precision, recall, MAP, NDCG, and catalog coverage at 10. It also has rows for new users, users with short histories, and items with no training events. The `new_user` row has zero history, so all three models fall back to popularity. `new_user_after_one` gives the model that user's first held-out event and tests it on later events. Cold items can use category metadata if that metadata existed before the cutoff. Items absent from the frozen catalog cannot be ranked; their held-out event count appears as `unavailable_events`.
 
